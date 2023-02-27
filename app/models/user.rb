@@ -9,10 +9,16 @@ class User < ApplicationRecord
   has_many :book_comments,dependent: :destroy
   has_many :favorites,dependent: :destroy
 
+  # 自分がフォローする（与フォロー）側の関係性
   has_many :relationships,class_name:"Relationship",foreign_key:"follower_id",dependent: :destroy
+
+  # 自分がフォローされる（被フォロー）側の関係性
   has_many :reverse_of_relationships,class_name:"Relationship",foreign_key:"followed_id",dependent: :destroy
 
+ # 与フォロー関係を通じて参照→自分がフォローしている人
   has_many :followings,through: :relationships, source: :followed
+
+  # 被フォロー関係を通じて参照→自分をフォローしている人
   has_many :followers, through: :reverse_of_relationships, source: :follower
 
   has_one_attached :profile_image
@@ -21,21 +27,23 @@ class User < ApplicationRecord
   validates :name, length: { minimum: 2, maximum: 20 }, uniqueness: true
   validates :introduction, length: { maximum: 50 }
 
+
+
   def get_profile_image
     (profile_image.attached?) ? profile_image : 'no_image.jpg'
   end
 
 
-  def following?(other_user)
-    self.followings.include?(other_user)
+  def following?(user)
+    followings.include?(user)
   end
 
-  def follow(other_user)
-    self.following_relationships.create(following_id: other_user.id)
+  def follow(user)
+    relationships.create(followed_id: user.id)
   end
 
-  def unfollow(other_user)
-    self.following_relationships.find_by(following_id: other_user.id).destroy
+  def unfollow(user)
+    relationships.find_by(followed_id: user.id).destroy
   end
 
 
