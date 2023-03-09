@@ -8,6 +8,8 @@ class User < ApplicationRecord
   has_many :books
   has_many :book_comments,dependent: :destroy
   has_many :favorites,dependent: :destroy
+  has_many :favorited_books, through: :favorites, source: :book
+
 
   # 自分がフォローする（与フォロー）側の関係性
   has_many :relationships,class_name:"Relationship",foreign_key:"follower_id",dependent: :destroy
