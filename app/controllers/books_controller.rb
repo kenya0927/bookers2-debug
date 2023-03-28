@@ -1,5 +1,4 @@
 class BooksController < ApplicationController
-
   before_action :ensure_correct_user, only: [:edit, :update]
 
   def show
@@ -10,18 +9,16 @@ class BooksController < ApplicationController
     @user = @book.user
     @book_new = Book.new
     @book_comment = BookComment.new
-
   end
 
   def index
     @book = Book.new
-    to  = Time.current.at_end_of_day
-    from  = (to - 6.day).at_beginning_of_day
-    @books = Book.all.sort {|a,b|
-    b.favorites.where(created_at: from...to).size <=>
-    a.favorites.where(created_at: from...to).size
+    to = Time.current.at_end_of_day
+    from = (to - 6.day).at_beginning_of_day
+    @books = Book.all.sort { |a, b|
+      b.favorites.where(created_at: from...to).size <=>
+      a.favorites.where(created_at: from...to).size
     }
-
   end
 
   def create
@@ -31,7 +28,7 @@ class BooksController < ApplicationController
       redirect_to book_path(@book), notice: "You have created book successfully."
     else
       @books = Book.all
-      render 'index'
+      render "index"
     end
   end
 
@@ -55,16 +52,14 @@ class BooksController < ApplicationController
   end
 
   private
+    def book_params
+      params.require(:book).permit(:title, :body)
+    end
 
-  def book_params
-    params.require(:book).permit(:title, :body)
-  end
-
-   def ensure_correct_user
+    def ensure_correct_user
       book = Book.find(params[:id])
       if current_user.id != book.user_id
-      redirect_to books_path
+        redirect_to books_path
       end
-   end
-
+    end
 end
